@@ -16,28 +16,28 @@ import copy
 
 
 def read_depth(depth_path):
-    depth_vis = Image.open(depth_path).convert('I;16')
+    depth_vis = Image.open(depth_path).convert('I;16')  
     depth_vis_array = np.array(depth_vis)
 
     arr1 = np.right_shift(depth_vis_array, 3)
     arr2 = np.left_shift(depth_vis_array, 13)
     depth_vis_array = np.bitwise_or(arr1, arr2)
 
-    depth_inpaint = depth_vis_array.astype(np.float32) / 1000.0
-
+    depth_inpaint = depth_vis_array.astype(np.float32) / 1000.0  
+      
     return depth_inpaint
 
 
 class NYUDataset(Dataset):
     def __init__(
-            self,
-            split,
-            root,
-            preprocess_root,
-            n_relations=4,
-            color_jitter=None,
-            frustum_size=4,
-            fliplr=0.0,
+        self,
+        split,
+        root,
+        preprocess_root,
+        n_relations=4,
+        color_jitter=None,
+        frustum_size=4,
+        fliplr=0.0,
     ):
         self.n_relations = n_relations
         self.frustum_size = frustum_size
@@ -69,12 +69,12 @@ class NYUDataset(Dataset):
                 ),
             ]
         )
-        self.is_train = split == 'train'
-
+        self.is_train = split=='train'
     def __getitem__(self, index):
+
         # file_path = self.scan_names[index]
         if self.is_train:
-            file_path = '/data/chm/00_datasets/nyu/NYU_dataset/depthbin/NYUtrain/NYU0601_0000.bin'
+            file_path='/data/chm/00_datasets/nyu/NYU_dataset/depthbin/NYUtrain/NYU0601_0000.bin'
         else:
             file_path = self.scan_names[index]
 
@@ -112,7 +112,7 @@ class NYUDataset(Dataset):
             self.img_H,
             self.scene_size,
         )
-
+        
         data["projected_pix_1"] = projected_pix
         data["fov_mask_1"] = fov_mask
 
@@ -150,7 +150,7 @@ class NYUDataset(Dataset):
             # raw_img = np.ascontiguousarray(np.fliplr(raw_img))
             raw_img_pil = raw_img_pil.transpose(Image.FLIP_LEFT_RIGHT)
             data["projected_pix_1"][:, 0] = (
-                    img.shape[1] - 1 - data["projected_pix_1"][:, 0]
+                img.shape[1] - 1 - data["projected_pix_1"][:, 0]
             )
 
             depth_gt = np.ascontiguousarray(np.fliplr(depth_gt))

@@ -160,8 +160,9 @@ class ISO(pl.LightningModule):
     
     def _init_depthanything(self):
         import sys
-        sys.path.append('/home/hongxiao.yu/projects/ISO/depth_anything/metric_depth')
-        overrite = {"pretrained_resource": "local::/home/hongxiao.yu/projects/ISO/checkpoints/depth_anything_metric_depth_indoor.pt"}
+        sys.path.append('/data/chm/01_codehub/Occupancy/ISO/ISO_main/depth_anything/metric_depth')
+        overrite = {"pretrained_resource": "local::/data/chm/01_codehub/Occupancy/ISO/ISO_main/checkpoints/depth_anything_metric_depth_indoor.pt"}
+        # overrite = {"pretrained_resource": "local::/home/hongxiao.yu/projects/ISO/checkpoints/depth_anything_metric_depth_indoor.pt"}
         conf = get_depthany_config("zoedepth", "infer", "nyu", **overrite)
         # conf['img_size'] = [480, 640]
         from pprint import pprint
@@ -259,7 +260,7 @@ class ISO(pl.LightningModule):
                     elif self.use_depthanything:
                         self.net_depth.device = 'cuda'
                         feature = self.net_depth.infer_pil(raw_img[i], output_type="tensor", with_flip_aug=False).cuda().unsqueeze(0).unsqueeze(0)
-                        
+                        # (1,1,480,640)
                         # print(feature.shape)
                         # print(feature.shape)
 
@@ -271,7 +272,7 @@ class ISO(pl.LightningModule):
                         # plt.savefig('/home/hongxiao.yu/ISO/depth_compare.png')
 
                         input_kwargs = {
-                            "img_feat_1_1": torch.cat([x_rgb['1_1'][i:i+1], feature], dim=1),
+                            "img_feat_1_1": torch.cat([x_rgb['1_1'][i:i+1], feature], dim=1), # 图像特征+深度结果
                             "cam_k": batch["cam_k"][i:i+1],
                             "T_velo_2_cam": batch["cam_pose"][i:i+1],
                             "vox_origin": batch['vox_origin'][i:i+1],
@@ -291,7 +292,7 @@ class ISO(pl.LightningModule):
                         x=input_kwargs['img_feat_1_1'],
                         sweep_intrins=intrins_mat,
                         scaled_pixel_size=None,
-                    )
+                    ) # (1,64,480,640)
                     depths['1_1'] = depth_feature_1_1.softmax(1)  # 得到depth的分布
                     for res in self.voxeldepth_res[1:]:
                         depths['1_'+str(res)] = down_sample_depth_dist(depths['1_1'], int(res))
@@ -338,7 +339,7 @@ class ISO(pl.LightningModule):
                     "depth_min": 0,
                     "depth_max": 10,
                 }
-                pix_z_index = bin_depths(depth_map=pix_z[i], target=True, **disc_cfg).to(fov_mask.device)
+                pix_z_index = bin_depths(depth_map=pix_z[i], target=True, **disc_cfg).to(fov_mask.device) # 深度值转成bin index
                 # pix_z_index = ((pix_z[i] - (0.1 - 0.13)) / 0.13).to(fov_mask.device)
                 # pix_z_index = torch.where(
                 #     (pix_z_index < 80 + 1) & (pix_z_index >= 0.0),

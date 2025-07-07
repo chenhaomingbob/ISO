@@ -16,7 +16,7 @@ def compute_CP_mega_matrix(target, is_binary=False):
     label = target.reshape(-1)
     label_row = label
     N = label.shape[0]
-    super_voxel_size = [i//2 for i in target.shape]
+    super_voxel_size = [i // 2 for i in target.shape]
     if is_binary:
         matrix = np.zeros((2, N, super_voxel_size[0] * super_voxel_size[1] * super_voxel_size[2]), dtype=np.uint8)
     else:
@@ -27,32 +27,36 @@ def compute_CP_mega_matrix(target, is_binary=False):
             for zz in range(super_voxel_size[2]):
                 col_idx = xx * (super_voxel_size[1] * super_voxel_size[2]) + yy * super_voxel_size[2] + zz
                 label_col_megas = np.array([
-                    target[xx * 2,     yy * 2,     zz * 2],
-                    target[xx * 2 + 1, yy * 2,     zz * 2],
-                    target[xx * 2,     yy * 2 + 1, zz * 2],
-                    target[xx * 2,     yy * 2,     zz * 2 + 1],
+                    target[xx * 2, yy * 2, zz * 2],
+                    target[xx * 2 + 1, yy * 2, zz * 2],
+                    target[xx * 2, yy * 2 + 1, zz * 2],
+                    target[xx * 2, yy * 2, zz * 2 + 1],
                     target[xx * 2 + 1, yy * 2 + 1, zz * 2],
-                    target[xx * 2 + 1, yy * 2,     zz * 2 + 1],
-                    target[xx * 2,     yy * 2 + 1, zz * 2 + 1],
+                    target[xx * 2 + 1, yy * 2, zz * 2 + 1],
+                    target[xx * 2, yy * 2 + 1, zz * 2 + 1],
                     target[xx * 2 + 1, yy * 2 + 1, zz * 2 + 1],
                 ])
                 label_col_megas = label_col_megas[label_col_megas != 255]
                 for label_col_mega in label_col_megas:
-                    label_col = np.ones(N)  * label_col_mega
+                    label_col = np.ones(N) * label_col_mega
                     if not is_binary:
-                        matrix[0, (label_row != 255) & (label_col == label_row) & (label_col != 0), col_idx] = 1.0 # non non same
-                        matrix[1, (label_row != 255) & (label_col != label_row) & (label_col != 0) & (label_row != 0), col_idx] = 1.0 # non non diff
-                        matrix[2, (label_row != 255) & (label_row == label_col) & (label_col == 0), col_idx] = 1.0 # empty empty
-                        matrix[3, (label_row != 255) & (label_row != label_col) & ((label_row == 0) | (label_col == 0)), col_idx] = 1.0 # nonempty empty
+                        matrix[0, (label_row != 255) & (label_col == label_row) & (
+                                    label_col != 0), col_idx] = 1.0  # non non same
+                        matrix[1, (label_row != 255) & (label_col != label_row) & (label_col != 0) & (
+                                    label_row != 0), col_idx] = 1.0  # non non diff
+                        matrix[2, (label_row != 255) & (label_row == label_col) & (
+                                    label_col == 0), col_idx] = 1.0  # empty empty
+                        matrix[3, (label_row != 255) & (label_row != label_col) & (
+                                    (label_row == 0) | (label_col == 0)), col_idx] = 1.0  # nonempty empty
                     else:
-                        matrix[0, (label_row != 255) & (label_col != label_row), col_idx] = 1.0 # diff
-                        matrix[1, (label_row != 255) & (label_col == label_row), col_idx] = 1.0 # same
+                        matrix[0, (label_row != 255) & (label_col != label_row), col_idx] = 1.0  # diff
+                        matrix[1, (label_row != 255) & (label_col == label_row), col_idx] = 1.0  # same
     return matrix
 
 
-def vox2pix(cam_E, cam_k, 
-            vox_origin, voxel_size, 
-            img_W, img_H, 
+def vox2pix(cam_E, cam_k,
+            vox_origin, voxel_size,
+            img_W, img_H,
             scene_size):
     """
     compute the 2D projection of voxels centroids
@@ -83,33 +87,38 @@ def vox2pix(cam_E, cam_k,
         Voxels'distance to the sensor in meter
     """
     # Compute the x, y, z bounding of the scene in meter
-    vol_bnds = np.zeros((3,2))
-    vol_bnds[:,0] = vox_origin
-    vol_bnds[:,1] = vox_origin + np.array(scene_size)
-    
+
+    vol_bnds = np.zeros((3, 2))
+    vol_bnds[:, 0] = vox_origin
+    vol_bnds[:, 1] = vox_origin + np.array(scene_size)
 
     # Compute the voxels centroids in lidar cooridnates
     # TODO: Make sure the around process has no influence on the NYUv2 result.
-    vol_dim = np.ceil(np.around((vol_bnds[:,1]- vol_bnds[:,0])/ voxel_size, 3)).copy(order='C').astype(int)
-    if vol_dim[0] != 60 or vol_dim[1] != 60 or vol_dim[2] != 36:
-        print("Find it:", vol_dim, '\n', vol_bnds, vol_bnds.dtype)
-        exit(-1)
+    vol_dim = np.ceil(np.around((vol_bnds[:, 1] - vol_bnds[:, 0]) / voxel_size, 3)).copy(order='C').astype(int)
+    # if vol_dim[0] != 60 or vol_dim[1] != 60 or vol_dim[2] != 36:
+    #     print("Find it:", vol_dim, '\n', vol_bnds, vol_bnds.dtype)
+    #     exit(-1)
     xv, yv, zv = np.meshgrid(
-            range(vol_dim[0]),
-            range(vol_dim[1]),
-            range(vol_dim[2]),
-            indexing='ij'
-          )
+        range(vol_dim[0]),
+        range(vol_dim[1]),
+        range(vol_dim[2]),
+        indexing='ij'
+    )
     vox_coords = np.concatenate([
-            xv.reshape(1,-1),
-            yv.reshape(1,-1),
-            zv.reshape(1,-1)
-          ], axis=0).astype(int).T
+        xv.reshape(1, -1),
+        yv.reshape(1, -1),
+        zv.reshape(1, -1)
+    ], axis=0).astype(int).T
 
     # Project voxels'centroid from lidar coordinates to camera coordinates
     cam_pts = fusion.TSDFVolume.vox2world(vox_origin, vox_coords, voxel_size)
     cam_pts = fusion.rigid_transform(cam_pts, cam_E)
 
+
+    #
+    cam_pts = np.where(cam_pts == 0, 1e-8, cam_pts)
+
+    ##
     # Project camera coordinates to pixel positions
     projected_pix = fusion.TSDFVolume.cam2pix(cam_pts, cam_k)
     pix_x, pix_y = projected_pix[:, 0], projected_pix[:, 1]
@@ -117,22 +126,22 @@ def vox2pix(cam_E, cam_k,
     # Eliminate pixels outside view frustum
     pix_z = cam_pts[:, 2]
     fov_mask = np.logical_and(pix_x >= 0,
-                np.logical_and(pix_x < img_W,
-                np.logical_and(pix_y >= 0,
-                np.logical_and(pix_y < img_H,
-                pix_z > 0))))
-
+                              np.logical_and(pix_x < img_W,
+                                             np.logical_and(pix_y >= 0,
+                                                            np.logical_and(pix_y < img_H,
+                                                                           pix_z > 0))))
 
     return projected_pix, fov_mask, pix_z
 
 
 def compute_local_frustum(pix_x, pix_y, min_x, max_x, min_y, max_y, pix_z):
     valid_pix = np.logical_and(pix_x >= min_x,
-                np.logical_and(pix_x < max_x,
-                np.logical_and(pix_y >= min_y,
-                np.logical_and(pix_y < max_y,
-                pix_z > 0))))
+                               np.logical_and(pix_x < max_x,
+                                              np.logical_and(pix_y >= min_y,
+                                                             np.logical_and(pix_y < max_y,
+                                                                            pix_z > 0))))
     return valid_pix
+
 
 def compute_local_frustums(projected_pix, pix_z, target, img_W, img_H, dataset, n_classes, size=4):
     """
@@ -165,7 +174,7 @@ def compute_local_frustums(projected_pix, pix_z, target, img_W, img_H, dataset, 
         Contains the class frequencies in each frustum
     """
     H, W, D = target.shape
-    ranges = [(i * 1.0/size, (i * 1.0 + 1)/size) for i in range(size)]
+    ranges = [(i * 1.0 / size, (i * 1.0 + 1) / size) for i in range(size)]
     local_frustum_masks = []
     local_frustum_class_dists = []
     pix_x, pix_y = projected_pix[:, 0], projected_pix[:, 1]

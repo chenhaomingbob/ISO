@@ -184,7 +184,8 @@ class UNet2D(nn.Module):
 
         print("Loading base model ()...".format(basemodel_name), end="")
         basemodel = torch.hub.load(
-            "rwightman/gen-efficientnet-pytorch", basemodel_name, pretrained=True
+            "/home/chm/.cache/torch/hub/rwightman_gen-efficientnet-pytorch_master", basemodel_name, pretrained=True,source='local'
+            # "rwightman/gen-efficientnet-pytorch", basemodel_name, pretrained=True
         )
         print("Done.")
 

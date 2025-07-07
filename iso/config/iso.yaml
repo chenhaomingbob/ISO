@@ -8,16 +8,20 @@ enable_log: true
 #kitti_preprocess_root: '/path/to/kitti/preprocess/folder'
 #kitti_logdir: '/path/to/semantic_kitti/logdir'
 
-NYU_root: "/mnt/vdb1/hongxiao.yu/data/NYU_dataset/depthbin/"
-NYU_preprocess_root: "/mnt/vdb1/hongxiao.yu/data/NYU_dataset/preprocess/"
-logdir: "/mnt/vdb1/hongxiao.yu/logs/ISO_logs/"
+NYU_root: "/data/chm/00_datasets/nyu/NYU_dataset/depthbin/"
+#NYU_root: "/mnt/vdb1/hongxiao.yu/data/NYU_dataset/depthbin/"
+NYU_preprocess_root: "/data/chm/00_datasets/nyu/NYU_dataset/preprocess_2/"
+#NYU_preprocess_root: "/mnt/vdb1/hongxiao.yu/data/NYU_dataset/preprocess/"
+logdir: "./ISO_logs/"
+#logdir: "/mnt/vdb1/hongxiao.yu/logs/ISO_logs/"
 
 
 fp_loss: true 
 frustum_size: 8 
 batch_size: 1
 n_gpus: 1
-num_workers_per_gpu: 0
+num_workers_per_gpu: 1
+#num_workers_per_gpu: 0
 exp_prefix: "iso"
 run: 1
 lr: 1e-4

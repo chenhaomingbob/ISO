@@ -33,11 +33,11 @@ def get_grid_coords(dims, resolution):
 
 
 def draw(
-        voxels,
-        cam_pose,
-        vox_origin,
-        voxel_size=0.08,
-        d=0.75,  # 0.75m - determine the size of the mesh representing the camera
+    voxels,
+    cam_pose,
+    vox_origin,
+    voxel_size=0.08,
+    d=0.75,  # 0.75m - determine the size of the mesh representing the camera
 ):
     # Compute the coordinates of the mesh representing camera
     y = d * 480 / (2 * 518.8579)
@@ -64,14 +64,25 @@ def draw(
         (0, 2, 3),
     ]
 
+    # # Compute the voxels coordinates
+    # grid_coords = get_grid_coords(
+    #     [voxels.shape[0], voxels.shape[2], voxels.shape[1]], voxel_size
+    # )
+    #
+    # # Attach the predicted class to every voxel
+    # grid_coords = np.vstack(
+    #     (grid_coords.T, np.moveaxis(voxels, [0, 1, 2], [0, 2, 1]).reshape(-1))
+    # ).T
+
+
     # Compute the voxels coordinates
     grid_coords = get_grid_coords(
-        [voxels.shape[0], voxels.shape[2], voxels.shape[1]], voxel_size
+        [voxels.shape[0], voxels.shape[1], voxels.shape[2]], voxel_size
     )
 
     # Attach the predicted class to every voxel
     grid_coords = np.vstack(
-        (grid_coords.T, np.moveaxis(voxels, [0, 1, 2], [0, 2, 1]).reshape(-1))
+        (grid_coords.T, voxels.reshape(-1))
     ).T
 
     # Remove empty and unknown voxels
@@ -137,23 +148,15 @@ def main(config: DictConfig):
 
     cam_pose = b["cam_pose"]
     vox_origin = b["voxel_origin"]
-    ##
-    if 'target' in b:
-        gt_scene = b["target"]  # (60,36,60)
-        gt_scene = np.swapaxes(gt_scene, 1, 2)
-    elif 'target_1_4' in b:
-        gt_scene = b["target_1_4"]  # (60,36,60)
-    ##
-    pred_scene = b["pred"]
-    # pred_scene = np.swapaxes(pred_scene, 1, 2) # (60,36,60)
+    gt_scene = b["target_1_4"] # (60,60,36)
     # pred_scene = b["y_pred"]
     scan = os.path.basename(scan)[:12]
 
-    pred_scene[(gt_scene == 255)] = 255  # only draw scene inside the room
-
+    # pred_scene[(gt_scene == 255)] = 255  # only draw scene inside the room
+    print(b['img'])
     draw(
-        # gt_scene,
-        pred_scene,
+        gt_scene,
+        # pred_scene,
         cam_pose,
         vox_origin,
         voxel_size=0.08,

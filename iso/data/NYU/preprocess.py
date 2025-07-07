@@ -145,7 +145,7 @@ def _downsample_label(label, voxel_size=(240, 144, 240), downscale=4):
 
 @hydra.main(config_name="../../config/iso.yaml")
 def main(config: DictConfig):
-    breakpoint()
+    # breakpoint()
     scene_size = (240, 144, 240)
     for split in ["train", "test"]:
         root = os.path.join(config.NYU_root, "NYU" + split)
@@ -170,6 +170,7 @@ def main(config: DictConfig):
                 "cam_pose": cam_pose,
                 "voxel_origin": vox_origin,
                 "name": name,
+                "target_1_1": target_1_1,
                 "target_1_4": target_1_4,
                 "target_1_16": target_1_16,
             }

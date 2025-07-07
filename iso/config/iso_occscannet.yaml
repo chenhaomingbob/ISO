@@ -4,7 +4,8 @@ n_relations: 4
 
 enable_log: true
 
-logdir: "/mnt/vdb1/hongxiao.yu/logs/ISO_occscannet_logs/"
+logdir: "./logs/ISO_occscannet_logs/"
+#logdir: "/mnt/vdb1/hongxiao.yu/logs/ISO_occscannet_logs/"
 
 
 fp_loss: true 

@@ -33,8 +33,10 @@ class OccScanNetDataset(Dataset):
         v2=False,
     ):  
         # cur_dir = os.path.abspath(os.path.curdir)
-        iso_mm_path = os.getenv["ISO_MM_PATH"]
-        
+        iso_mm_path = "/data/chm/02_Dependices/mmdetection3d-1.3.0"
+        self.iso_mm_path = iso_mm_path
+        # iso_mm_path = os.getenv["ISO_MM_PATH"]
+
         self.n_relations = n_relations
         self.frustum_size = frustum_size
         self.split = split
@@ -85,8 +87,10 @@ class OccScanNetDataset(Dataset):
 
     def __getitem__(self, index):
         name = self.used_subscenes[index]
-        iso_mm_path = os.getenv["ISO_MM_PATH"]
-        name = f"{iso_mm_path}/"+name
+        # iso_mm_path = self.iso_mm_path
+
+        # iso_mm_path = os.getenv["ISO_MM_PATH"]
+        # name = f"{iso_mm_path}/"+name
         with open(name, 'rb') as f:
             data = pickle.load(f)
 

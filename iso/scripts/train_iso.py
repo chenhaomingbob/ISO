@@ -26,7 +26,8 @@ hydra.output_subdir = None
 
 pl.seed_everything(658018589)  #, workers=True)
 
-@hydra.main(config_name="../config/iso_occscannet_mini.yaml", config_path='.')
+# @hydra.main(config_name="../config/iso.yaml", config_path='.')
+@hydra.main(config_name="../config/iso_occscannet.yaml", config_path='.')
 def main(config: DictConfig):
     exp_name = config.exp_prefix
     exp_name += "_{}_{}".format(config.dataset, config.run)
@@ -206,6 +207,7 @@ def main(config: DictConfig):
             logger=logger,
             check_val_every_n_epoch=1,
             log_every_n_steps=10,
+            num_sanity_val_steps=0
             # flush_logs_every_n_steps=100,
             # strategy="ddp_find_unused_parameters_true",
         )
@@ -222,6 +224,7 @@ def main(config: DictConfig):
             check_val_every_n_epoch=1,
             log_every_n_steps=10,
             # flush_logs_every_n_steps=100,
+            num_sanity_val_steps=0,
             strategy="ddp_find_unused_parameters_true",
         )
     torch.set_float32_matmul_precision('high')
